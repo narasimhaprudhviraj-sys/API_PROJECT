@@ -1,0 +1,24 @@
+-------------------------------------------------------------------------------
+Test set: com.example.onlinecourse.service.AdminServiceTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 3.683 s <<< FAILURE! -- in com.example.onlinecourse.service.AdminServiceTest
+com.example.onlinecourse.service.AdminServiceTest.testLoginAdmin_Success -- Time elapsed: 2.656 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "String.getBytes(java.nio.charset.Charset)" because "this.jwtSecret" is null
+	at com.example.onlinecourse.config.JwtService.getSigningKey(JwtService.java:30)
+	at com.example.onlinecourse.config.JwtService.generateToken(JwtService.java:48)
+	at com.example.onlinecourse.service.impl.AdminServiceImpl.loginAdmin(AdminServiceImpl.java:87)
+	at com.example.onlinecourse.service.AdminServiceTest.testLoginAdmin_Success(AdminServiceTest.java:84)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+
+com.example.onlinecourse.service.AdminServiceTest.testLoginFaculty_Success -- Time elapsed: 0.335 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "String.getBytes(java.nio.charset.Charset)" because "this.jwtSecret" is null
+	at com.example.onlinecourse.config.JwtService.getSigningKey(JwtService.java:30)
+	at com.example.onlinecourse.config.JwtService.generateToken(JwtService.java:48)
+	at com.example.onlinecourse.service.impl.AdminServiceImpl.loginFaculty(AdminServiceImpl.java:114)
+	at com.example.onlinecourse.service.AdminServiceTest.testLoginFaculty_Success(AdminServiceTest.java:109)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+

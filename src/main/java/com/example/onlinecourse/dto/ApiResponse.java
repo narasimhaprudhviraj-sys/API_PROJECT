@@ -1,0 +1,85 @@
+package com.example.onlinecourse.dto;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ApiResponse {
+
+    private boolean success;
+    private String message;
+    private Long id;
+    private Long registrationId;
+    private Object data;
+
+    public ApiResponse() {
+    }
+
+    public ApiResponse(boolean success, String message) {
+        this.success = success;
+        this.message = message;
+    }
+
+    public ApiResponse(boolean success, String message, Long id) {
+        this.success = success;
+        this.message = message;
+        this.id = id;
+    }
+
+    public ApiResponse(boolean success, String message, Object data) {
+        this.success = success;
+        this.message = message;
+        this.data = data;
+    }
+
+    public static ApiResponse ok(String message) {
+        return new ApiResponse(true, message);
+    }
+
+    public static ApiResponse ok(String message, Object data) {
+        return new ApiResponse(true, message, data);
+    }
+
+    public static ApiResponse error(String message) {
+        return new ApiResponse(false, message);
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getRegistrationId() {
+        return registrationId;
+    }
+
+    public void setRegistrationId(Long registrationId) {
+        this.registrationId = registrationId;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
+    }
+}

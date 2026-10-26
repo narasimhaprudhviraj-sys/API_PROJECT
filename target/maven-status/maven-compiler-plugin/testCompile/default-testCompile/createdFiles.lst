@@ -1,0 +1,6 @@
+com\example\onlinecourse\service\StudentServiceTest.class
+com\example\onlinecourse\service\AdminServiceTest.class
+com\example\onlinecourse\service\RegistrationServiceTest.class
+com\example\onlinecourse\OnlineCourseApplicationTests.class
+com\example\onlinecourse\service\CourseServiceTest.class
+com\example\onlinecourse\service\RegistrationWindowServiceTest.class

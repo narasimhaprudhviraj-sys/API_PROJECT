@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Console - Online Course Registration System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+  <style>
+    body { background-color: #f1f5f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .admin-navbar { background: linear-gradient(135deg, #0f172a, #1e293b); }
+    .nav-tabs .nav-link { color: #475569; font-weight: 600; border-radius: 8px 8px 0 0; padding: 10px 18px; border: none; border-bottom: 3px solid transparent; }
+    .nav-tabs .nav-link.active { color: #dc2626; border-bottom: 3px solid #dc2626; background: #fff; }
+    .card-custom { border: none; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+    .stat-card { border-radius: 14px; border: none; padding: 18px; color: #fff; transition: transform 0.2s; }
+    .stat-card:hover { transform: translateY(-3px); }
+    .bg-stat-1 { background: linear-gradient(135deg, #1e3a8a, #3b82f6); }
+    .bg-stat-2 { background: linear-gradient(135deg, #065f46, #10b981); }
+    .bg-stat-3 { background: linear-gradient(135deg, #581c87, #9333ea); }
+    .bg-stat-4 { background: linear-gradient(135deg, #9a3412, #f97316); }
+    .bg-stat-5 { background: linear-gradient(135deg, #831843, #ec4899); }
+    .bg-stat-6 { background: linear-gradient(135deg, #134e4a, #14b8a6); }
+    .bg-stat-7 { background: linear-gradient(135deg, #312e81, #6366f1); }
+    .bg-stat-8 { background: linear-gradient(135deg, #713f12, #eab308); }
+    .badge-soft-primary { background-color: #dbeafe; color: #1e40af; }
+    .badge-soft-success { background-color: #d1fae5; color: #065f46; }
+    .badge-soft-purple { background-color: #ede9fe; color: #6d28d9; }
+    .badge-soft-warning { background-color: #fef3c7; color: #92400e; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark admin-navbar sticky-top">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold d-flex align-items-center" href="admin-dashboard.html">
+        <i class="fas fa-shield-alt fa-lg me-2 text-danger"></i>
+        <span>COLLEGE REGISTRATION &bull; ADMINISTRATOR CONSOLE</span>
+      </a>
+      <div class="d-flex align-items-center gap-3">
+        <span class="text-white-50 small">System Administrator: <strong class="text-white" id="navAdminName">Admin</strong></span>
+        <button class="btn btn-outline-light btn-sm" onclick="logout()"><i class="fas fa-sign-out-alt me-1"></i>Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <div class="container-fluid px-4 py-4 mb-5">
+
+    <!-- Admin Welcome Header -->
+    <div class="card card-custom p-4 mb-4 border-0 text-white" style="background: linear-gradient(135deg, #1e293b, #334155);">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <span class="badge bg-danger px-3 py-1 mb-2 fw-bold text-uppercase"><i class="fas fa-crown me-1"></i>Master Admin Console</span>
+          <h2 class="fw-bold mb-1">Academic Administration Hub</h2>
+          <p class="mb-0 text-white-50">Oversee Branches, Minor Streams, Sections, Faculty Assignments, Semester Offerings, Registration Deadlines, and Course Enrollments.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn btn-warning fw-semibold btn-sm" onclick="showAddCourseModal()"><i class="fas fa-plus-circle me-1"></i>New Course</button>
+          <button class="btn btn-info fw-semibold text-white btn-sm" onclick="showAddWindowModal()"><i class="fas fa-calendar-plus me-1"></i>New Reg Window</button>
+          <button class="btn btn-success fw-semibold btn-sm" onclick="showAddFacultyModal()"><i class="fas fa-user-plus me-1"></i>New Faculty</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8 Metric Stat Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-stat-1 shadow-sm">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-white-50 small text-uppercase fw-bold">Total Students</div>
+              <h3 class="fw-bold mb-0 mt-1" id="statStudents">0</h3>
+            </div>
+            <i class="fas fa-user-graduate fa-2x opacity-50"></i>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-stat-2 shadow-sm">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-white-50 small text-uppercase fw-bold">Total Courses</div>
+              <h3 class="fw-bold mb-0 mt-1" id="statCourses">0</h3>
+            </div>
+            <i class="fas fa-book-open fa-2x opacity-50"></i>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-stat-3 shadow-sm">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-white-50 small text-uppercase fw-bold">Total Faculty</div>
+              <h3 class="fw-bold mb-0 mt-1" id="statFaculty">0</h3>
+            </div>
+            <i class="fas fa-chalkboard-teacher fa-2x opacity-50"></i>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-stat-4 shadow-sm">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-white-50 small text-uppercase fw-bold">Total Registrations</div>
+              <h3 class="fw-bold mb-0 mt-1" id="statRegistrations">0</h3>
+            </div>
+            <i class="fas fa-clipboard-check fa-2x opacity-50"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-stat-5 shadow-sm">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-white-50 small text-uppercase fw-bold">Active Windows</div>
+              <h3 class="fw-bold mb-0 mt-1" id="statWindows">0</h3>
+            </div>
+            <i class="fas fa-business-time fa-2x opacity-50"></i>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-stat-6 shadow-sm">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-white-50 small text-uppercase fw-bold">Total Branches</div>
+              <h3 class="fw-bold mb-0 mt-1" id="statBranches">0</h3>
+            </div>
+            <i class="fas fa-code-branch fa-2x opacity-50"></i>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-stat-7 shadow-sm">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-white-50 small text-uppercase fw-bold">Minor Streams</div>
+              <h3 class="fw-bold mb-0 mt-1" id="statStreams">0</h3>
+            </div>
+            <i class="fas fa-stream fa-2x opacity-50"></i>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-stat-8 shadow-sm">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-white-50 small text-uppercase fw-bold">Open Seat Courses</div>
+              <h3 class="fw-bold mb-0 mt-1" id="statOpenSeats">0</h3>
+            </div>
+            <i class="fas fa-check-circle fa-2x opacity-50"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs mb-4 flex-wrap" id="adminTabs" role="tablist">
+      <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#branchesTab" onclick="loadBranches()"><i class="fas fa-code-branch me-1"></i>Branches</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#streamsTab" onclick="loadMinorStreams()"><i class="fas fa-stream me-1"></i>Minor Streams</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sectionsTab" onclick="loadSections()"><i class="fas fa-layer-group me-1"></i>Sections & Faculty</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#facultyTab" onclick="loadFaculty()"><i class="fas fa-chalkboard-teacher me-1"></i>Faculty Members</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#semestersTab" onclick="loadSemesters()"><i class="fas fa-clock me-1"></i>Semesters</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#windowsTab" onclick="loadWindows()"><i class="fas fa-calendar-alt me-1"></i>Registration Windows</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#coursesTab" onclick="loadCourses()"><i class="fas fa-book me-1"></i>Courses</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#studentsTab" onclick="loadStudents()"><i class="fas fa-user-graduate me-1"></i>Students</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#registrationsTab" onclick="loadRegistrations()"><i class="fas fa-receipt me-1"></i>Registrations Audit</button></li>
+    </ul>
+
+    <!-- Tab Contents -->
+    <div class="tab-content">
+
+      <!-- 1. Branches Tab -->
+      <div class="tab-pane fade show active" id="branchesTab">
+        <div class="card card-custom p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0"><i class="fas fa-code-branch text-primary me-2"></i>Academic Branches</h5>
+            <button class="btn btn-primary btn-sm" onclick="showAddBranchModal()"><i class="fas fa-plus me-1"></i>Add Branch</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr><th>ID</th><th>Branch Code</th><th>Branch Name</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="branchesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Minor Streams Tab -->
+      <div class="tab-pane fade" id="streamsTab">
+        <div class="card card-custom p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-0"><i class="fas fa-stream text-success me-2"></i>Fixed Minor Streams</h5>
+              <small class="text-muted">One branch contains multiple minor streams. Students choose in Year 2 and stream remains permanent.</small>
+            </div>
+            <button class="btn btn-success btn-sm" onclick="showAddStreamModal()"><i class="fas fa-plus me-1"></i>Add Minor Stream</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr><th>ID</th><th>Stream Code</th><th>Minor Stream Name</th><th>Branch</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="streamsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Sections Tab -->
+      <div class="tab-pane fade" id="sectionsTab">
+        <div class="card card-custom p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-0"><i class="fas fa-layer-group text-purple me-2"></i>Sections & Faculty Assignment</h5>
+              <small class="text-muted">Sections are divided per minor stream. Multiple sections have dedicated faculty assignments.</small>
+            </div>
+            <button class="btn btn-dark btn-sm" onclick="showAddSectionModal()"><i class="fas fa-plus me-1"></i>Add Section</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr><th>ID</th><th>Section Name</th><th>Minor Stream</th><th>Branch</th><th>Assigned Faculty</th><th>Year</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="sectionsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Faculty Tab -->
+      <div class="tab-pane fade" id="facultyTab">
+        <div class="card card-custom p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0"><i class="fas fa-chalkboard-teacher text-danger me-2"></i>Faculty Directory</h5>
+            <button class="btn btn-danger btn-sm" onclick="showAddFacultyModal()"><i class="fas fa-plus me-1"></i>Add Faculty</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr><th>Code</th><th>Name</th><th>Email</th><th>Department</th><th>Designation</th><th>Phone</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="facultyTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Semesters Tab -->
+      <div class="tab-pane fade" id="semestersTab">
+        <div class="card card-custom p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h5 class="fw-bold mb-0"><i class="fas fa-clock text-info me-2"></i>Academic Semesters</h5>
+              <small class="text-muted">Course registrations operate semester-wise (Semester 3 through 8).</small>
+            </div>
+            <button class="btn btn-info text-white btn-sm" onclick="showAddSemesterModal()"><i class="fas fa-plus me-1"></i>Add Semester</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr><th>ID</th><th>Semester Number</th><th>Academic Year</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="semestersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Registration Windows Tab -->
+      <div class="tab-pane fade" id="windowsTab">
+        <div class="card card-custom p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h5 class="fw-bold mb-0"><i class="fas fa-calendar-alt text-warning me-2"></i>Course Registration Windows & Deadlines</h5>
+              <small class="text-muted">Enforces strict start and end deadlines for course registration and dropping.</small>
+            </div>
+            <button class="btn btn-warning btn-sm" onclick="showAddWindowModal()"><i class="fas fa-plus me-1"></i>Add Window</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr><th>ID</th><th>Title</th><th>Semester</th><th>Start Date & Time</th><th>End Date & Time</th><th>Live Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="windowsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. Courses Tab -->
+      <div class="tab-pane fade" id="coursesTab">
+        <div class="card card-custom p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h5 class="fw-bold mb-0"><i class="fas fa-book text-success me-2"></i>Master Course Catalog</h5>
+            <button class="btn btn-success btn-sm" onclick="showAddCourseModal()"><i class="fas fa-plus me-1"></i>Create Course</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr><th>Code</th><th>Course Name</th><th>Branch</th><th>Minor Stream</th><th>Semester</th><th>Faculty</th><th>Credits</th><th>Seats (Avail/Max)</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="coursesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. Students Tab -->
+      <div class="tab-pane fade" id="studentsTab">
+        <div class="card card-custom p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-0"><i class="fas fa-user-graduate text-primary me-2"></i>Enrolled Students</h5>
+              <small class="text-muted">Admin can assign and configure Branch, Minor Stream, Section, and Semester.</small>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="showAddStudentModal()"><i class="fas fa-plus me-1"></i>Enroll Student</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr><th>Roll No</th><th>Name</th><th>Email</th><th>Branch</th><th>Minor Stream</th><th>Section</th><th>Semester</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="studentsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. Registrations Audit Tab -->
+      <div class="tab-pane fade" id="registrationsTab">
+        <div class="card card-custom p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h5 class="fw-bold mb-0"><i class="fas fa-receipt text-secondary me-2"></i>Course Registrations Audit Log</h5>
+              <small class="text-muted">Real-time log of student course registrations and cancellations.</small>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm" onclick="loadRegistrations()"><i class="fas fa-sync-alt me-1"></i>Refresh</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr><th>Reg ID</th><th>Student</th><th>Roll No</th><th>Course</th><th>Semester</th><th>Branch & Minor Stream</th><th>Timestamp</th><th>Status</th><th>Action</th></tr>
+              </thead>
+              <tbody id="registrationsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Shared Dynamic Modal -->
+  <div class="modal fade" id="adminModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title" id="modalTitle">Modal</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer" id="modalFooter"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const API = 'http://localhost:8080/api';
+    const adminRole = localStorage.getItem('role');
+    const adminUser = localStorage.getItem('admin_user') ? JSON.parse(localStorage.getItem('admin_user')) : null;
+
+    // Global fetch interceptor to automatically attach JWT token on all calls
+    const _fetch = window.fetch;
+    window.fetch = function (url, options = {}) {
+      options = options || {};
+      const token = localStorage.getItem('token') || (adminUser ? adminUser.token : null);
+      if (token) {
+        if (!options.headers) {
+          options.headers = {};
+        }
+        if (options.headers instanceof Headers) {
+          options.headers.set('Authorization', 'Bearer ' + token);
+        } else if (Array.isArray(options.headers)) {
+          options.headers.push(['Authorization', 'Bearer ' + token]);
+        } else {
+          options.headers['Authorization'] = 'Bearer ' + token;
+        }
+      }
+      return _fetch(url, options).then(response => {
+        if (response.status === 401) {
+          Swal.fire('Session Expired', 'Please login again.', 'warning').then(() => {
+            localStorage.clear();
+            window.location.href = 'index.html';
+          });
+        }
+        return response;
+      });
+    };
+
+    // Guard
+    if (adminRole !== 'ADMIN' && (!adminUser || adminUser.role !== 'ADMIN')) {
+      window.location.href = 'index.html';
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('adminModal'));
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('navAdminName').textContent = localStorage.getItem('name') || 'Admin';
+      loadStats();
+      loadBranches();
+    });
+
+    async function loadStats() {
+      try {
+        const res = await fetch(`${API}/admin/stats`);
+        const s = await res.json();
+        document.getElementById('statStudents').textContent = s.totalStudents || 0;
+        document.getElementById('statCourses').textContent = s.totalCourses || 0;
+        document.getElementById('statFaculty').textContent = s.totalFaculty || 0;
+        document.getElementById('statRegistrations').textContent = s.totalRegistrations || 0;
+        document.getElementById('statWindows').textContent = s.activeWindows || 0;
+        document.getElementById('statBranches').textContent = s.totalBranches || 0;
+        document.getElementById('statStreams').textContent = s.totalMinorStreams || 0;
+        document.getElementById('statOpenSeats').textContent = s.availableCourses || 0;
+      } catch (err) {
+        console.error('Stats error:', err);
+      }
+    }
+
+    // 1. Branches
+    async function loadBranches() {
+      const tbody = document.getElementById('branchesTableBody');
+      try {
+        const res = await fetch(`${API}/branches`);
+        const branches = await res.json();
+        tbody.innerHTML = branches.map(b => `
+          <tr>
+            <td>#${b.id}</td>
+            <td><strong class="text-primary">${b.branchCode}</strong></td>
+            <td>${b.branchName}</td>
+            <td><span class="badge ${b.active ? 'bg-success' : 'bg-secondary'}">${b.active ? 'Active' : 'Inactive'}</span></td>
+            <td>
+              <button class="btn btn-outline-warning btn-sm me-1" onclick="toggleBranch(${b.id})"><i class="fas fa-toggle-on"></i> Toggle</button>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteBranch(${b.id})"><i class="fas fa-trash-alt"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Failed to load branches.</td></tr>`;
+      }
+    }
+
+    function showAddBranchModal() {
+      document.getElementById('modalTitle').textContent = 'Add Academic Branch';
+      document.getElementById('modalBody').innerHTML = `
+        <div class="mb-3">
+          <label class="form-label fw-bold">Branch Code (e.g. AIML, CSE)</label>
+          <input type="text" id="mbCode" class="form-control" placeholder="AIML" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Branch Full Name</label>
+          <input type="text" id="mbName" class="form-control" placeholder="Artificial Intelligence & Machine Learning" />
+        </div>
+      `;
+      document.getElementById('modalFooter').innerHTML = `
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="submitBranch()">Create Branch</button>
+      `;
+      modal.show();
+    }
+
+    async function submitBranch() {
+      const branchCode = document.getElementById('mbCode').value.trim();
+      const branchName = document.getElementById('mbName').value.trim();
+      if (!branchCode || !branchName) return Swal.fire('Error', 'All fields required', 'warning');
+      try {
+        await fetch(`${API}/branches`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({branchCode, branchName, active: true})
+        });
+        modal.hide();
+        Swal.fire('Created', 'Branch created successfully', 'success');
+        loadBranches();
+        loadStats();
+      } catch (err) {
+        Swal.fire('Error', err.message, 'error');
+      }
+    }
+
+    async function toggleBranch(id) {
+      await fetch(`${API}/branches/${id}/toggle`, {method: 'PATCH'});
+      loadBranches();
+    }
+
+    async function deleteBranch(id) {
+      if ((await Swal.fire({title: 'Delete Branch?', icon: 'warning', showCancelButton: true})).isConfirmed) {
+        await fetch(`${API}/branches/${id}`, {method: 'DELETE'});
+        loadBranches();
+        loadStats();
+      }
+    }
+
+    // 2. Minor Streams
+    async function loadMinorStreams() {
+      const tbody = document.getElementById('streamsTableBody');
+      try {
+        const res = await fetch(`${API}/minor-streams`);
+        const streams = await res.json();
+        tbody.innerHTML = streams.map(s => `
+          <tr>
+            <td>#${s.id}</td>
+            <td><span class="badge bg-dark">${s.streamCode}</span></td>
+            <td class="fw-bold text-success">${s.streamName}</td>
+            <td><span class="badge badge-soft-primary">${s.branchCode || 'N/A'}</span></td>
+            <td><span class="badge ${s.active ? 'bg-success' : 'bg-secondary'}">${s.active ? 'Active' : 'Inactive'}</span></td>
+            <td>
+              <button class="btn btn-outline-warning btn-sm me-1" onclick="toggleStream(${s.id})"><i class="fas fa-toggle-on"></i> Toggle</button>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteStream(${s.id})"><i class="fas fa-trash-alt"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Failed to load streams.</td></tr>`;
+      }
+    }
+
+    async function showAddStreamModal() {
+      const bRes = await fetch(`${API}/branches`);
+      const branches = await bRes.json();
+      document.getElementById('modalTitle').textContent = 'Add Minor Stream';
+      document.getElementById('modalBody').innerHTML = `
+        <div class="mb-3">
+          <label class="form-label fw-bold">Associated Branch</label>
+          <select id="msBranchId" class="form-select">
+            ${branches.map(b => `<option value="${b.id}">${b.branchCode} - ${b.branchName}</option>`).join('')}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Minor Stream Code (e.g. MAD, NA)</label>
+          <input type="text" id="msCode" class="form-control" placeholder="MAD" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Stream Name</label>
+          <input type="text" id="msName" class="form-control" placeholder="AIML MAD Stream" />
+        </div>
+      `;
+      document.getElementById('modalFooter').innerHTML = `
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-success" onclick="submitStream()">Create Stream</button>
+      `;
+      modal.show();
+    }
+
+    async function submitStream() {
+      const branchId = Number(document.getElementById('msBranchId').value);
+      const streamCode = document.getElementById('msCode').value.trim();
+      const streamName = document.getElementById('msName').value.trim();
+      if (!streamCode || !streamName) return Swal.fire('Error', 'All fields required', 'warning');
+      try {
+        await fetch(`${API}/minor-streams`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({branchId, streamCode, streamName, active: true})
+        });
+        modal.hide();
+        Swal.fire('Created', 'Minor stream created successfully', 'success');
+        loadMinorStreams();
+        loadStats();
+      } catch (err) {
+        Swal.fire('Error', err.message, 'error');
+      }
+    }
+
+    async function toggleStream(id) {
+      await fetch(`${API}/minor-streams/${id}/toggle`, {method: 'PATCH'});
+      loadMinorStreams();
+    }
+
+    async function deleteStream(id) {
+      if ((await Swal.fire({title: 'Delete Minor Stream?', icon: 'warning', showCancelButton: true})).isConfirmed) {
+        await fetch(`${API}/minor-streams/${id}`, {method: 'DELETE'});
+        loadMinorStreams();
+        loadStats();
+      }
+    }
+
+    // 3. Sections
+    async function loadSections() {
+      const tbody = document.getElementById('sectionsTableBody');
+      try {
+        const res = await fetch(`${API}/sections`);
+        const sections = await res.json();
+        tbody.innerHTML = sections.map(sec => {
+          const canAssign = !!sec.facultyAssignmentEnabled;
+          const assignmentText = canAssign
+            ? `<button class="btn btn-outline-primary btn-sm me-1" onclick="showAssignFacultyModal(${sec.id}, '${sec.sectionName}')"><i class="fas fa-user-edit"></i> Assign Faculty</button>`
+            : `<button class="btn btn-outline-secondary btn-sm me-1" disabled title="Faculty selection is enabled only when this minor stream has more than two sections"><i class="fas fa-lock"></i> Faculty Locked (${sec.sectionsInMinorStream || 0}/3 sections)</button>`;
+          return `
+          <tr>
+            <td>#${sec.id}</td>
+            <td class="fw-bold">${sec.sectionName}</td>
+            <td><span class="badge badge-soft-purple">${sec.minorStreamName || 'N/A'}</span><br><small class="text-muted">${sec.sectionsInMinorStream || 0} section(s)</small></td>
+            <td><span class="badge badge-soft-primary">${sec.branchCode || 'N/A'}</span></td>
+            <td><strong class="text-success"><i class="fas fa-user-tie me-1"></i>${sec.facultyName || '<span class="text-danger">Not Assigned</span>'}</strong></td>
+            <td>${sec.academicYear || '2024-25'}</td>
+            <td>${assignmentText}
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteSection(${sec.id})"><i class="fas fa-trash-alt"></i></button>
+            </td>
+          </tr>`;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Failed to load sections.</td></tr>`;
+      }
+    }
+
+    async function showAddSectionModal() {
+      const [bRes, sRes, fRes, secRes] = await Promise.all([
+        fetch(`${API}/branches`), fetch(`${API}/minor-streams`), fetch(`${API}/faculty`), fetch(`${API}/sections`)
+      ]);
+      const branches = await bRes.json();
+      const streams = await sRes.json();
+      const faculty = await fRes.json();
+      const existingSections = await secRes.json();
+      const sectionCounts = {};
+      existingSections.forEach(sec => { sectionCounts[sec.minorStreamId] = (sectionCounts[sec.minorStreamId] || 0) + 1; });
+      facultyAssignmentState.counts = sectionCounts;
+      facultyAssignmentState.faculty = faculty;
+
+      document.getElementById('modalTitle').textContent = 'Add Academic Section';
+      document.getElementById('modalBody').innerHTML = `
+        <div class="mb-3">
+          <label class="form-label fw-bold">Section Name (e.g. MAD Stream-1)</label>
+          <input type="text" id="secName" class="form-control" placeholder="MAD Stream-1" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Branch</label>
+          <select id="secBranchId" class="form-select">
+            ${branches.map(b => `<option value="${b.id}">${b.branchCode} - ${b.branchName}</option>`).join('')}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Minor Stream</label>
+          <select id="secStreamId" class="form-select" onchange="refreshFacultyAssignmentControl()">
+            ${streams.map(s => `<option value="${s.id}">${s.streamName}</option>`).join('')}
+          </select>
+          <div class="form-text" id="facultyRuleText"></div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Assign Faculty</label>
+          <select id="secFacultyId" class="form-select" disabled>
+            <option value="">-- Create section first; faculty assignment activates at 3+ sections --</option>
+          </select>
+        </div>
+      `;
+      document.getElementById('modalFooter').innerHTML = `
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="submitSection()">Create Section</button>
+      `;
+      modal.show();
+      refreshFacultyAssignmentControl();
+    }
+
+    const facultyAssignmentState = { counts: {}, faculty: [] };
+
+    function refreshFacultyAssignmentControl() {
+      const streamId = Number(document.getElementById('secStreamId').value);
+      const count = facultyAssignmentState.counts[streamId] || 0;
+      const select = document.getElementById('secFacultyId');
+      const text = document.getElementById('facultyRuleText');
+      if (count > 2) {
+        select.disabled = false;
+        select.innerHTML = `<option value="">-- Select Faculty --</option>${facultyAssignmentState.faculty.map(f => `<option value="${f.id}">${f.name} (${f.department})</option>`).join('')}`;
+        text.textContent = `Faculty selection enabled: this minor stream currently has ${count} sections.`;
+      } else {
+        select.disabled = true;
+        select.innerHTML = '<option value="">-- Create section first; faculty assignment activates at 3+ sections --</option>';
+        text.textContent = `Faculty selection is locked: this minor stream currently has ${count} section(s).`;
+      }
+    }
+
+    async function submitSection() {
+      const sectionName = document.getElementById('secName').value.trim();
+      const branchId = Number(document.getElementById('secBranchId').value);
+      const minorStreamId = Number(document.getElementById('secStreamId').value);
+      const facultyIdVal = document.getElementById('secFacultyId').value;
+      const facultyId = facultyIdVal ? Number(facultyIdVal) : null;
+
+      if (!sectionName) return Swal.fire('Error', 'Section name required', 'warning');
+      try {
+        await fetch(`${API}/sections`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({sectionName, branchId, minorStreamId, facultyId, academicYear: '2024-25', active: true})
+        });
+        modal.hide();
+        Swal.fire('Created', 'Section created successfully', 'success');
+        loadSections();
+      } catch (err) {
+        Swal.fire('Error', err.message, 'error');
+      }
+    }
+
+    async function showAssignFacultyModal(sectionId, sectionName) {
+      const fRes = await fetch(`${API}/faculty`);
+      const faculty = await fRes.json();
+      document.getElementById('modalTitle').textContent = `Assign Faculty to ${sectionName}`;
+      document.getElementById('modalBody').innerHTML = `
+        <div class="mb-3">
+          <label class="form-label fw-bold">Select Dedicated Faculty Mentor</label>
+          <select id="afFacultyId" class="form-select">
+            ${faculty.map(f => `<option value="${f.id}">${f.name} &bull; ${f.department} &bull; ${f.facultyCode}</option>`).join('')}
+          </select>
+        </div>
+      `;
+      document.getElementById('modalFooter').innerHTML = `
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="submitAssignFaculty(${sectionId})">Save Assignment</button>
+      `;
+      modal.show();
+    }
+
+    async function submitAssignFaculty(sectionId) {
+      const facultyId = document.getElementById('afFacultyId').value;
+      try {
+        await fetch(`${API}/sections/${sectionId}/assign-faculty/${facultyId}`, {method: 'PUT'});
+        modal.hide();
+        Swal.fire('Assigned', 'Faculty member assigned to section successfully', 'success');
+        loadSections();
+      } catch (err) {
+        Swal.fire('Error', err.message, 'error');
+      }
+    }
+
+    async function deleteSection(id) {
+      if ((await Swal.fire({title: 'Delete Section?', icon: 'warning', showCancelButton: true})).isConfirmed) {
+        await fetch(`${API}/sections/${id}`, {method: 'DELETE'});
+        loadSections();
+      }
+    }
+
+    // 4. Faculty
+    async function loadFaculty() {
+      const tbody = document.getElementById('facultyTableBody');
+      try {
+        const res = await fetch(`${API}/faculty`);
+        const list = await res.json();
+        tbody.innerHTML = list.map(f => `
+          <tr>
+            <td><span class="badge bg-dark">${f.facultyCode}</span></td>
+            <td class="fw-bold">${f.name}</td>
+            <td>${f.email}</td>
+            <td><span class="badge badge-soft-primary">${f.department}</span></td>
+            <td>${f.designation}</td>
+            <td>${f.phone || 'N/A'}</td>
+            <td><span class="badge ${f.active ? 'bg-success' : 'bg-secondary'}">${f.active ? 'Active' : 'Inactive'}</span></td>
+            <td>
+              <button class="btn btn-outline-warning btn-sm me-1" onclick="toggleFaculty(${f.id})"><i class="fas fa-toggle-on"></i></button>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteFaculty(${f.id})"><i class="fas fa-trash-alt"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Failed to load faculty.</td></tr>`;
+      }
+    }
+
+    function showAddFacultyModal() {
+      document.getElementById('modalTitle').textContent = 'Add Faculty Member';
+      document.getElementById('modalBody').innerHTML = `
+        <div class="row g-2">
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Faculty Code</label>
+            <input type="text" id="facCode" class="form-control" placeholder="FAC006" />
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Full Name</label>
+            <input type="text" id="facName" class="form-control" placeholder="Dr. S. K. Gupta" />
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Email</label>
+            <input type="email" id="facEmail" class="form-control" placeholder="gupta@college.edu" />
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Password</label>
+            <input type="password" id="facPass" class="form-control" value="faculty123" />
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Department</label>
+            <input type="text" id="facDept" class="form-control" placeholder="AIML" />
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Designation</label>
+            <input type="text" id="facDesig" class="form-control" placeholder="Associate Professor" />
+          </div>
+          <div class="col-12 mb-2">
+            <label class="form-label fw-bold">Contact Phone</label>
+            <input type="text" id="facPhone" class="form-control" placeholder="9876500006" />
+          </div>
+        </div>
+      `;
+      document.getElementById('modalFooter').innerHTML = `
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger" onclick="submitFaculty()">Save Faculty</button>
+      `;
+      modal.show();
+    }
+
+    async function submitFaculty() {
+      const facultyCode = document.getElementById('facCode').value.trim();
+      const name = document.getElementById('facName').value.trim();
+      const email = document.getElementById('facEmail').value.trim();
+      const password = document.getElementById('facPass').value;
+      const department = document.getElementById('facDept').value.trim();
+      const designation = document.getElementById('facDesig').value.trim();
+      const phone = document.getElementById('facPhone').value.trim();
+
+      if (!facultyCode || !name || !email) return Swal.fire('Error', 'Missing required fields', 'warning');
+      try {
+        await fetch(`${API}/faculty`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({facultyCode, name, email, password, department, designation, phone, active: true})
+        });
+        modal.hide();
+        Swal.fire('Created', 'Faculty account registered', 'success');
+        loadFaculty();
+        loadStats();
+      } catch (err) {
+        Swal.fire('Error', err.message, 'error');
+      }
+    }
+
+    async function toggleFaculty(id) {
+      await fetch(`${API}/faculty/${id}/toggle`, {method: 'PATCH'});
+      loadFaculty();
+    }
+
+    async function deleteFaculty(id) {
+      if ((await Swal.fire({title: 'Delete Faculty?', icon: 'warning', showCancelButton: true})).isConfirmed) {
+        await fetch(`${API}/faculty/${id}`, {method: 'DELETE'});
+        loadFaculty();
+        loadStats();
+      }
+    }
+
+    // 5. Semesters
+    async function loadSemesters() {
+      const tbody = document.getElementById('semestersTableBody');
+      try {
+        const res = await fetch(`${API}/semesters`);
+        const list = await res.json();
+        tbody.innerHTML = list.map(sem => `
+          <tr>
+            <td>#${sem.id}</td>
+            <td class="fw-bold">Semester ${sem.semesterNumber}</td>
+            <td>${sem.academicYear || '2024-25'}</td>
+            <td><span class="badge ${sem.active ? 'bg-success' : 'bg-secondary'}">${sem.active ? 'Active' : 'Inactive'}</span></td>
+            <td>
+              <button class="btn btn-outline-warning btn-sm me-1" onclick="toggleSemester(${sem.id})"><i class="fas fa-toggle-on"></i></button>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteSemester(${sem.id})"><i class="fas fa-trash-alt"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Failed to load semesters.</td></tr>`;
+      }
+    }
+
+    function showAddSemesterModal() {
+      document.getElementById('modalTitle').textContent = 'Add Academic Semester';
+      document.getElementById('modalBody').innerHTML = `
+        <div class="mb-3">
+          <label class="form-label fw-bold">Semester Number (3 to 8)</label>
+          <input type="number" id="semNum" class="form-control" min="1" max="8" value="3" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Academic Year</label>
+          <input type="text" id="semYear" class="form-control" value="2024-25" />
+        </div>
+      `;
+      document.getElementById('modalFooter').innerHTML = `
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-info text-white" onclick="submitSemester()">Create Semester</button>
+      `;
+      modal.show();
+    }
+
+    async function submitSemester() {
+      const semesterNumber = Number(document.getElementById('semNum').value);
+      const academicYear = document.getElementById('semYear').value.trim();
+      try {
+        await fetch(`${API}/semesters`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({semesterNumber, academicYear, active: true})
+        });
+        modal.hide();
+        Swal.fire('Created', 'Semester created', 'success');
+        loadSemesters();
+      } catch (err) {
+        Swal.fire('Error', err.message, 'error');
+      }
+    }
+
+    async function toggleSemester(id) {
+      await fetch(`${API}/semesters/${id}/toggle`, {method: 'PATCH'});
+      loadSemesters();
+    }
+
+    async function deleteSemester(id) {
+      if ((await Swal.fire({title: 'Delete Semester?', icon: 'warning', showCancelButton: true})).isConfirmed) {
+        await fetch(`${API}/semesters/${id}`, {method: 'DELETE'});
+        loadSemesters();
+      }
+    }
+
+    // 6. Registration Windows
+    async function loadWindows() {
+      const tbody = document.getElementById('windowsTableBody');
+      try {
+        const res = await fetch(`${API}/registration-windows`);
+        const list = await res.json();
+        tbody.innerHTML = list.map(w => {
+          const now = new Date();
+          const start = new Date(w.startDateTime);
+          const end = new Date(w.endDateTime);
+          const isOpen = w.status === 'OPEN' && w.active && now >= start && now <= end;
+
+          return `
+            <tr>
+              <td>#${w.id}</td>
+              <td class="fw-bold">${w.title}</td>
+              <td>Semester ${w.semesterNumber || w.semesterId}</td>
+              <td>${new Date(w.startDateTime).toLocaleString()}</td>
+              <td>${new Date(w.endDateTime).toLocaleString()}</td>
+              <td>
+                <span class="badge ${isOpen ? 'bg-success' : 'bg-danger'} px-2 py-1">
+                  <i class="fas ${isOpen ? 'fa-door-open' : 'fa-door-closed'} me-1"></i>${isOpen ? 'LIVE OPEN' : 'CLOSED'}
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-outline-warning btn-sm me-1" onclick="toggleWindow(${w.id})"><i class="fas fa-toggle-on"></i></button>
+                <button class="btn btn-outline-danger btn-sm" onclick="deleteWindow(${w.id})"><i class="fas fa-trash-alt"></i></button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Failed to load registration windows.</td></tr>`;
+      }
+    }
+
+    async function showAddWindowModal() {
+      const sRes = await fetch(`${API}/semesters`);
+      const semesters = await sRes.json();
+      
+      const now = new Date();
+      const in2Weeks = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+      const startStr = now.toISOString().slice(0, 16);
+      const endStr = in2Weeks.toISOString().slice(0, 16);
+
+      document.getElementById('modalTitle').textContent = 'Add Registration Window & Deadline';
+      document.getElementById('modalBody').innerHTML = `
+        <div class="mb-3">
+          <label class="form-label fw-bold">Window Title</label>
+          <input type="text" id="winTitle" class="form-control" placeholder="Semester 3 Course Registration" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Semester</label>
+          <select id="winSemId" class="form-select">
+            ${semesters.map(s => `<option value="${s.id}">Semester ${s.semesterNumber} (${s.academicYear})</option>`).join('')}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Start Date & Time</label>
+          <input type="datetime-local" id="winStart" class="form-control" value="${startStr}" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Deadline (End Date & Time)</label>
+          <input type="datetime-local" id="winEnd" class="form-control" value="${endStr}" />
+        </div>
+      `;
+      document.getElementById('modalFooter').innerHTML = `
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-warning" onclick="submitWindow()">Activate Window</button>
+      `;
+      modal.show();
+    }
+
+    async function submitWindow() {
+      const title = document.getElementById('winTitle').value.trim();
+      const semesterId = Number(document.getElementById('winSemId').value);
+      const startDateTime = document.getElementById('winStart').value + ':00';
+      const endDateTime = document.getElementById('winEnd').value + ':00';
+
+      if (!title) return Swal.fire('Error', 'Title required', 'warning');
+      try {
+        await fetch(`${API}/registration-windows`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({title, semesterId, startDateTime, endDateTime, status: 'OPEN', active: true})
+        });
+        modal.hide();
+        Swal.fire('Activated', 'Registration window activated', 'success');
+        loadWindows();
+        loadStats();
+      } catch (err) {
+        Swal.fire('Error', err.message, 'error');
+      }
+    }
+
+    async function toggleWindow(id) {
+      await fetch(`${API}/registration-windows/${id}/toggle`, {method: 'PATCH'});
+      loadWindows();
+      loadStats();
+    }
+
+    async function deleteWindow(id) {
+      if ((await Swal.fire({title: 'Delete Window?', icon: 'warning', showCancelButton: true})).isConfirmed) {
+        await fetch(`${API}/registration-windows/${id}`, {method: 'DELETE'});
+        loadWindows();
+        loadStats();
+      }
+    }
+
+    // 7. Courses
+    async function loadCourses() {
+      const tbody = document.getElementById('coursesTableBody');
+      try {
+        const res = await fetch(`${API}/courses`);
+        const courses = await res.json();
+        tbody.innerHTML = courses.map(c => `
+          <tr>
+            <td><span class="badge bg-dark">${c.courseCode}</span></td>
+            <td class="fw-bold">${c.courseName}</td>
+            <td><span class="badge badge-soft-primary">${c.branchCode || c.department || 'N/A'}</span></td>
+            <td><span class="badge badge-soft-purple">${c.minorStreamName || 'N/A'}</span></td>
+            <td>Semester ${c.semesterNumber || 'N/A'}</td>
+            <td>${c.facultyName || 'Department Faculty'}</td>
+            <td><span class="badge bg-info text-dark">${c.credits}</span></td>
+            <td>
+              <strong class="${c.availableSeats > 0 ? 'text-success' : 'text-danger'}">
+                ${c.availableSeats} / ${c.maxSeats}
+              </strong>
+            </td>
+            <td><span class="badge ${c.status === 'ACTIVE' ? 'bg-success' : 'bg-secondary'}">${c.status}</span></td>
+            <td>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteCourse(${c.courseId})"><i class="fas fa-trash-alt"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center text-danger">Failed to load courses.</td></tr>`;
+      }
+    }
+
+    async function showAddCourseModal() {
+      const [bRes, sRes, semRes, fRes] = await Promise.all([
+        fetch(`${API}/branches`), fetch(`${API}/minor-streams`), fetch(`${API}/semesters`), fetch(`${API}/faculty`)
+      ]);
+      const branches = await bRes.json();
+      const streams = await sRes.json();
+      const semesters = await semRes.json();
+      const faculty = await fRes.json();
+
+      document.getElementById('modalTitle').textContent = 'Create New Course Offering';
+      document.getElementById('modalBody').innerHTML = `
+        <div class="row g-2">
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Course Code</label>
+            <input type="text" id="ccCode" class="form-control" placeholder="MAD302" />
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Course Title</label>
+            <input type="text" id="ccName" class="form-control" placeholder="Mobile UI & UX Design" />
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Target Branch</label>
+            <select id="ccBranchId" class="form-select">
+              ${branches.map(b => `<option value="${b.id}">${b.branchCode}</option>`).join('')}
+            </select>
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Minor Stream</label>
+            <select id="ccStreamId" class="form-select">
+              ${streams.map(s => `<option value="${s.id}">${s.streamName}</option>`).join('')}
+            </select>
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Semester</label>
+            <select id="ccSemId" class="form-select">
+              ${semesters.map(sem => `<option value="${sem.id}">Semester ${sem.semesterNumber}</option>`).join('')}
+            </select>
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Assigned Faculty</label>
+            <select id="ccFacId" class="form-select">
+              ${faculty.map(f => `<option value="${f.id}">${f.name}</option>`).join('')}
+            </select>
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Credits</label>
+            <input type="number" id="ccCredits" class="form-control" value="4" min="1" max="6" />
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Max Seat Capacity</label>
+            <input type="number" id="ccSeats" class="form-control" value="30" min="1" />
+          </div>
+          <div class="col-12 mb-2">
+            <label class="form-label fw-bold">Course Description</label>
+            <textarea id="ccDesc" class="form-control" rows="2" placeholder="Course outline and syllabus details..."></textarea>
+          </div>
+        </div>
+      `;
+      document.getElementById('modalFooter').innerHTML = `
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-success" onclick="submitCourse()">Create Course</button>
+      `;
+      modal.show();
+    }
+
+    async function submitCourse() {
+      const courseCode = document.getElementById('ccCode').value.trim();
+      const courseName = document.getElementById('ccName').value.trim();
+      const branchId = Number(document.getElementById('ccBranchId').value);
+      const minorStreamId = Number(document.getElementById('ccStreamId').value);
+      const semesterId = Number(document.getElementById('ccSemId').value);
+      const facultyId = Number(document.getElementById('ccFacId').value);
+      const credits = Number(document.getElementById('ccCredits').value);
+      const maxSeats = Number(document.getElementById('ccSeats').value);
+      const description = document.getElementById('ccDesc').value.trim();
+
+      if (!courseCode || !courseName) return Swal.fire('Error', 'Missing required fields', 'warning');
+
+      try {
+        await fetch(`${API}/courses`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            courseCode, courseName, branchId, minorStreamId, semesterId, facultyId,
+            credits, maxSeats, availableSeats: maxSeats, description, duration: '1 Semester', status: 'ACTIVE'
+          })
+        });
+        modal.hide();
+        Swal.fire('Created', 'Course offering created successfully', 'success');
+        loadCourses();
+        loadStats();
+      } catch (err) {
+        Swal.fire('Error', err.message, 'error');
+      }
+    }
+
+    async function deleteCourse(id) {
+      if ((await Swal.fire({title: 'Delete Course?', icon: 'warning', showCancelButton: true})).isConfirmed) {
+        await fetch(`${API}/courses/${id}`, {method: 'DELETE'});
+        loadCourses();
+        loadStats();
+      }
+    }
+
+    // 8. Students
+    async function loadStudents() {
+      const tbody = document.getElementById('studentsTableBody');
+      try {
+        const res = await fetch(`${API}/students`);
+        const students = await res.json();
+        tbody.innerHTML = students.map(s => `
+          <tr>
+            <td><span class="badge bg-secondary">${s.rollNo}</span></td>
+            <td class="fw-bold">${s.name}</td>
+            <td>${s.email}</td>
+            <td><span class="badge badge-soft-primary">${s.branchCode || s.department || 'N/A'}</span></td>
+            <td><span class="badge badge-soft-purple"><i class="fas fa-lock me-1"></i>${s.minorStreamName || 'N/A'}</span></td>
+            <td>${s.sectionName || 'N/A'}</td>
+            <td>Semester ${s.currentSemesterNumber || 'N/A'}</td>
+            <td><span class="badge bg-success">Active</span></td>
+            <td>
+              <button class="btn btn-outline-primary btn-sm me-1" onclick="showAssignAcademicsModal(${s.studentId}, '${s.name}')"><i class="fas fa-sliders-h"></i> Configure</button>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteStudent(${s.studentId})"><i class="fas fa-trash-alt"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Failed to load students.</td></tr>`;
+      }
+    }
+
+    async function showAddStudentModal() {
+      const [bRes, sRes, secRes, semRes] = await Promise.all([
+        fetch(`${API}/branches`), fetch(`${API}/minor-streams`), fetch(`${API}/sections`), fetch(`${API}/semesters`)
+      ]);
+      const branches = await bRes.json();
+      const streams = await sRes.json();
+      const sections = await secRes.json();
+      const semesters = await semRes.json();
+
+      document.getElementById('modalTitle').textContent = 'Enroll New Student';
+      document.getElementById('modalBody').innerHTML = `
+        <div class="row g-2">
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Full Name</label>
+            <input type="text" id="stName" class="form-control" placeholder="Rohan Sharma" />
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Roll Number</label>
+            <input type="text" id="stRoll" class="form-control" placeholder="22A15" />
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Email</label>
+            <input type="email" id="stEmail" class="form-control" placeholder="rohan@gmail.com" />
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Password</label>
+            <input type="password" id="stPass" class="form-control" value="12345" />
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Branch</label>
+            <select id="stBranchId" class="form-select">
+              ${branches.map(b => `<option value="${b.id}">${b.branchCode}</option>`).join('')}
+            </select>
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Fixed Minor Stream</label>
+            <select id="stStreamId" class="form-select">
+              ${streams.map(s => `<option value="${s.id}">${s.streamName}</option>`).join('')}
+            </select>
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Section</label>
+            <select id="stSecId" class="form-select">
+              ${sections.map(sec => `<option value="${sec.id}">${sec.sectionName}</option>`).join('')}
+            </select>
+          </div>
+          <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Current Semester</label>
+            <select id="stSemId" class="form-select">
+              ${semesters.map(sem => `<option value="${sem.id}">Semester ${sem.semesterNumber}</option>`).join('')}
+            </select>
+          </div>
+          <div class="col-12 mb-2">
+            <label class="form-label fw-bold">Phone</label>
+            <input type="text" id="stPhone" class="form-control" placeholder="9876543220" />
+          </div>
+        </div>
+      `;
+      document.getElementById('modalFooter').innerHTML = `
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="submitStudent()">Enroll Student</button>
+      `;
+      modal.show();
+    }
+
+    async function submitStudent() {
+      const name = document.getElementById('stName').value.trim();
+      const rollNo = document.getElementById('stRoll').value.trim();
+      const email = document.getElementById('stEmail').value.trim();
+      const password = document.getElementById('stPass').value;
+      const branchId = Number(document.getElementById('stBranchId').value);
+      const minorStreamId = Number(document.getElementById('stStreamId').value);
+      const sectionId = Number(document.getElementById('stSecId').value);
+      const semesterId = Number(document.getElementById('stSemId').value);
+      const phone = document.getElementById('stPhone').value.trim() || '9876543200';
+
+      if (!name || !rollNo || !email) return Swal.fire('Error', 'Missing required fields', 'warning');
+
+      try {
+        await fetch(`${API}/students/register`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({name, rollNo, email, password, branchId, minorStreamId, sectionId, semesterId, phone, year: 2})
+        });
+        modal.hide();
+        Swal.fire('Enrolled', 'Student enrolled successfully', 'success');
+        loadStudents();
+        loadStats();
+      } catch (err) {
+        Swal.fire('Error', err.message, 'error');
+      }
+    }
+
+    async function showAssignAcademicsModal(studentId, studentName) {
+      const [bRes, sRes, secRes, semRes] = await Promise.all([
+        fetch(`${API}/branches`), fetch(`${API}/minor-streams`), fetch(`${API}/sections`), fetch(`${API}/semesters`)
+      ]);
+      const branches = await bRes.json();
+      const streams = await sRes.json();
+      const sections = await secRes.json();
+      const semesters = await semRes.json();
+
+      document.getElementById('modalTitle').textContent = `Configure Academics: ${studentName}`;
+      document.getElementById('modalBody').innerHTML = `
+        <div class="alert alert-warning py-2 small mb-3">
+          <i class="fas fa-exclamation-triangle me-1"></i>Only Administrators can modify a student's assigned Minor Stream.
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Branch</label>
+          <select id="aaBranchId" class="form-select">
+            ${branches.map(b => `<option value="${b.id}">${b.branchCode} - ${b.branchName}</option>`).join('')}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Fixed Minor Stream</label>
+          <select id="aaStreamId" class="form-select">
+            ${streams.map(s => `<option value="${s.id}">${s.streamName}</option>`).join('')}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Section</label>
+          <select id="aaSectionId" class="form-select">
+            ${sections.map(sec => `<option value="${sec.id}">${sec.sectionName}</option>`).join('')}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Current Semester</label>
+          <select id="aaSemesterId" class="form-select">
+            ${semesters.map(sem => `<option value="${sem.id}">Semester ${sem.semesterNumber}</option>`).join('')}
+          </select>
+        </div>
+      `;
+      document.getElementById('modalFooter').innerHTML = `
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="submitAssignAcademics(${studentId})">Save Academics</button>
+      `;
+      modal.show();
+    }
+
+    async function submitAssignAcademics(studentId) {
+      const branchId = Number(document.getElementById('aaBranchId').value);
+      const minorStreamId = Number(document.getElementById('aaStreamId').value);
+      const sectionId = Number(document.getElementById('aaSectionId').value);
+      const semesterId = Number(document.getElementById('aaSemesterId').value);
+
+      try {
+        await fetch(`${API}/students/${studentId}/academics`, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({branchId, minorStreamId, sectionId, semesterId})
+        });
+        modal.hide();
+        Swal.fire('Updated', 'Student academic configuration saved', 'success');
+        loadStudents();
+      } catch (err) {
+        Swal.fire('Error', err.message, 'error');
+      }
+    }
+
+    async function deleteStudent(id) {
+      if ((await Swal.fire({title: 'Delete Student?', icon: 'warning', showCancelButton: true})).isConfirmed) {
+        await fetch(`${API}/students/${id}`, {method: 'DELETE'});
+        loadStudents();
+        loadStats();
+      }
+    }
+
+    // 9. Registrations Audit
+    async function loadRegistrations() {
+      const tbody = document.getElementById('registrationsTableBody');
+      try {
+        const res = await fetch(`${API}/admin/registrations`);
+        const list = await res.json();
+        tbody.innerHTML = list.map(r => `
+          <tr>
+            <td><strong>#${r.registrationId}</strong></td>
+            <td class="fw-bold">${r.studentName}</td>
+            <td><span class="badge bg-secondary">${r.studentRollNo}</span></td>
+            <td>${r.courseCode} - ${r.courseName}</td>
+            <td>Semester ${r.semesterNumber || 'N/A'}</td>
+            <td>${r.branchCode || ''} &bull; ${r.minorStreamName || ''}</td>
+            <td>${new Date(r.registrationDate).toLocaleString()}</td>
+            <td><span class="badge ${r.status === 'REGISTERED' ? 'bg-success' : 'bg-secondary'}">${r.status}</span></td>
+            <td>
+              <button class="btn btn-outline-danger btn-sm" onclick="cancelRegistration(${r.registrationId})"><i class="fas fa-ban me-1"></i>Cancel</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Failed to load registrations.</td></tr>`;
+      }
+    }
+
+    async function cancelRegistration(id) {
+      if ((await Swal.fire({title: 'Cancel this Registration?', text: 'The seat will be re-credited to the course offering immediately.', icon: 'warning', showCancelButton: true})).isConfirmed) {
+        try {
+          await fetch(`${API}/registrations/${id}`, {method: 'DELETE'});
+          Swal.fire('Cancelled', 'Registration removed and seat released', 'success');
+          loadRegistrations();
+          loadStats();
+        } catch (err) {
+          Swal.fire('Error', err.message, 'error');
+        }
+      }
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

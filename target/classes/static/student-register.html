@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration - Online Course Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-light">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <i class="bi bi-mortarboard-fill fs-3 me-2 text-warning"></i>
+                <span>ACADEMIC COURSE REGISTRATION</span>
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto align-items-center" id="navUserSection"></ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Registration Container -->
+    <div class="container py-5">
+        <div class="form-card" style="max-width: 680px;">
+            <div class="text-center mb-4">
+                <div class="bg-primary text-white d-inline-flex p-3 rounded-circle mb-3 shadow-sm">
+                    <i class="bi bi-person-plus fs-2"></i>
+                </div>
+                <h3 class="fw-bold">Student Registration</h3>
+                <p class="text-muted small">Create an account to enroll in departmental courses and manage your academic profile.</p>
+            </div>
+
+            <form id="studentRegisterForm" novalidate>
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" placeholder="e.g. John Doe" required minlength="2">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" placeholder="e.g. john@college.edu" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="password" placeholder="At least 4 characters" required minlength="4">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="rollNo" class="form-label">Roll Number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="rollNo" placeholder="e.g. 24CSE01" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="department" class="form-label">Department <span class="text-danger">*</span></label>
+                        <select class="form-select" id="department" required>
+                            <option value="">Select Department</option>
+                            <option value="CSE">Computer Science & Engineering (CSE)</option>
+                            <option value="IT">Information Technology (IT)</option>
+                            <option value="AIML">Artificial Intelligence & ML (AIML)</option>
+                            <option value="ECE">Electronics & Communication (ECE)</option>
+                            <option value="MECH">Mechanical Engineering (MECH)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="year" class="form-label">Academic Year <span class="text-danger">*</span></label>
+                        <select class="form-select" id="year" required>
+                            <option value="">Select Year</option>
+                            <option value="1">1st Year (Freshman)</option>
+                            <option value="2">2nd Year (Sophomore)</option>
+                            <option value="3">3rd Year (Junior)</option>
+                            <option value="4">4th Year (Senior)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" id="phone" placeholder="10-digit number" required pattern="^[0-9]{10,15}$">
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary-custom btn-lg shadow-sm" id="regBtn">
+                        <span id="btnSpinner" class="spinner-border spinner-border-sm me-2 d-none" role="status"></span>
+                        Register Account
+                    </button>
+                </div>
+
+                <div class="text-center mt-3">
+                    <p class="mb-0 text-muted">Already registered? <a href="student-login.html" class="fw-bold text-primary text-decoration-none">Sign In Here</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        document.getElementById('studentRegisterForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const btn = document.getElementById('regBtn');
+            const spinner = document.getElementById('btnSpinner');
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+
+            const payload = {
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value,
+                rollNo: document.getElementById('rollNo').value.trim(),
+                department: document.getElementById('department').value,
+                year: parseInt(document.getElementById('year').value, 10),
+                phone: document.getElementById('phone').value.trim()
+            };
+
+            try {
+                const response = await apiCall('/students/register', 'POST', payload);
+                if (response.success) {
+                    showAlert('Account created successfully! Redirecting to login...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'student-login.html';
+                    }, 1200);
+                } else {
+                    showAlert(response.message || 'Registration failed.', 'danger');
+                }
+            } catch (err) {
+                showAlert(err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+            }
+        });
+    </script>
+</body>
+</html>

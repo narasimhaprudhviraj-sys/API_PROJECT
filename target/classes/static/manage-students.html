@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Students - Academic Admin Console</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-light">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="admin-dashboard.html">
+                <i class="bi bi-shield-shaded fs-3 me-2 text-warning"></i>
+                <span>ACADEMIC ADMIN CONSOLE</span>
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="admin-dashboard.html">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="manage-courses.html">Manage Courses</a></li>
+                    <li class="nav-item"><a class="nav-link" href="add-course.html">Add Course</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="manage-students.html">Students</a></li>
+                    <li class="nav-item"><a class="nav-link" href="registrations.html">Registrations</a></li>
+                </ul>
+                <ul class="navbar-nav ms-auto align-items-center" id="navUserSection"></ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h2 class="fw-bold mb-1">Student Directory</h2>
+                <p class="text-muted mb-0">Browse enrolled student profiles, search by roll number, and monitor registrations.</p>
+            </div>
+        </div>
+
+        <!-- Search Box -->
+        <div class="card card-custom p-3 mb-4">
+            <div class="row g-3">
+                <div class="col-md-9">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" id="studentSearchInput" class="form-control" placeholder="Search by student name, roll number, or department...">
+                    </div>
+                </div>
+                <div class="col-md-3 d-grid">
+                    <button class="btn btn-outline-secondary" onclick="resetStudentSearch()">Clear Search</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students Table -->
+        <div class="card card-custom p-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>Roll Number</th>
+                            <th>Full Name</th>
+                            <th>College Email</th>
+                            <th>Department</th>
+                            <th>Academic Year</th>
+                            <th>Phone</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <div class="spinner-border spinner-border-sm text-primary me-2"></div> Loading student roster...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Detail & Courses Modal -->
+    <div class="modal fade" id="studentDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-person-badge me-2"></i>Student Registration History</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="fw-bold mb-3" id="modalStudentTitle">--</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Course Code</th>
+                                    <th>Course Name</th>
+                                    <th>Faculty</th>
+                                    <th>Credits</th>
+                                    <th>Registration Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalStudentCoursesBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Student Modal -->
+    <div class="modal fade" id="deleteStudentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-person-x me-2"></i>Delete Student Record</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to permanently remove this student?</p>
+                    <div class="p-3 bg-light rounded border text-danger">
+                        <strong id="deleteStudentName">--</strong>
+                        <div class="small text-muted mt-1">Warning: All active course registrations for this student will be revoked.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger fw-bold" id="confirmStudentDeleteBtn">Delete Student</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        let studentList = [];
+        let detailModalInstance = null;
+        let deleteStudentModalInstance = null;
+        let pendingStudentDeleteId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const admin = requireAdminAuth();
+            if (!admin) return;
+
+            detailModalInstance = new bootstrap.Modal(document.getElementById('studentDetailModal'));
+            deleteStudentModalInstance = new bootstrap.Modal(document.getElementById('deleteStudentModal'));
+            document.getElementById('confirmStudentDeleteBtn').addEventListener('click', executeStudentDelete);
+
+            document.getElementById('studentSearchInput').addEventListener('input', applyStudentFilter);
+
+            loadStudents();
+        });
+
+        async function loadStudents() {
+            try {
+                studentList = await apiCall('/admin/students');
+                renderStudents(studentList);
+            } catch (err) {
+                document.getElementById('studentTableBody').innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4">${err.message}</td></tr>`;
+            }
+        }
+
+        function applyStudentFilter() {
+            const query = document.getElementById('studentSearchInput').value.toLowerCase().trim();
+            const filtered = studentList.filter(s =>
+                !query ||
+                s.name.toLowerCase().includes(query) ||
+                s.rollNo.toLowerCase().includes(query) ||
+                s.department.toLowerCase().includes(query) ||
+                s.email.toLowerCase().includes(query)
+            );
+            renderStudents(filtered);
+        }
+
+        function resetStudentSearch() {
+            document.getElementById('studentSearchInput').value = '';
+            renderStudents(studentList);
+        }
+
+        function renderStudents(students) {
+            const tbody = document.getElementById('studentTableBody');
+            if (!students || students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No students found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = students.map(s => `
+                <tr>
+                    <td><span class="badge bg-light text-dark border fw-bold">${s.rollNo}</span></td>
+                    <td class="fw-bold">${s.name}</td>
+                    <td><code>${s.email}</code></td>
+                    <td><span class="badge bg-secondary">${s.department}</span></td>
+                    <td>Year ${s.year}</td>
+                    <td>${s.phone}</td>
+                    <td class="text-end">
+                        <button class="btn btn-outline-info btn-sm me-1" onclick="viewStudentEnrollments(${s.studentId}, '${s.name.replace(/'/g, "\\'")}', '${s.rollNo}')" title="View Registered Courses">
+                            <i class="bi bi-card-checklist"></i> Enrolled
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" onclick="promptStudentDelete(${s.studentId}, '${s.name.replace(/'/g, "\\'")}', '${s.rollNo}')" title="Delete Student">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function viewStudentEnrollments(studentId, name, rollNo) {
+            document.getElementById('modalStudentTitle').innerText = `${name} (${rollNo}) - Registered Courses`;
+            const tbody = document.getElementById('modalStudentCoursesBody');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3">Loading enrollments...</td></tr>';
+            detailModalInstance.show();
+
+            try {
+                const regs = await apiCall(`/registrations/student/${studentId}`);
+                if (!regs || regs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No courses registered yet.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = regs.map(r => `
+                    <tr>
+                        <td><code>${r.courseCode}</code></td>
+                        <td>${r.courseName}</td>
+                        <td>${r.facultyName}</td>
+                        <td>${r.credits}</td>
+                        <td>${formatDate(r.registrationDate)}</td>
+                        <td><span class="badge bg-success">${r.status}</span></td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-danger py-2">${err.message}</td></tr>`;
+            }
+        }
+
+        function promptStudentDelete(id, name, rollNo) {
+            pendingStudentDeleteId = id;
+            document.getElementById('deleteStudentName').innerText = `${name} (Roll No: ${rollNo})`;
+            deleteStudentModalInstance.show();
+        }
+
+        async function executeStudentDelete() {
+            if (!pendingStudentDeleteId) return;
+            const btn = document.getElementById('confirmStudentDeleteBtn');
+            btn.disabled = true;
+            btn.innerText = 'Deleting...';
+
+            try {
+                await apiCall(`/students/${pendingStudentDeleteId}`, 'DELETE');
+                deleteStudentModalInstance.hide();
+                showAlert('Student record deleted successfully.', 'success');
+                await loadStudents();
+            } catch (err) {
+                showAlert(err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Delete Student';
+            }
+        }
+    </script>
+</body>
+</html>

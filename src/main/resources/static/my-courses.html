@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Registered Courses - Online Course Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-light">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <i class="bi bi-mortarboard-fill fs-3 me-2 text-warning"></i>
+                <span>ACADEMIC COURSE REGISTRATION</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="student-dashboard.html">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="courses.html">Browse Courses</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="my-courses.html">My Registrations</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+                </ul>
+                <ul class="navbar-nav ms-auto align-items-center" id="navUserSection"></ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">My Registered Courses</h2>
+                <p class="text-muted mb-0">Manage enrolled semester courses and monitor academic credits.</p>
+            </div>
+            <a href="courses.html" class="btn btn-primary-custom fw-bold">
+                <i class="bi bi-plus-circle me-1"></i> Register More Courses
+            </a>
+        </div>
+
+        <div class="card card-custom p-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>Reg ID</th>
+                            <th>Code</th>
+                            <th>Course Name</th>
+                            <th>Department</th>
+                            <th>Faculty</th>
+                            <th>Credits</th>
+                            <th>Registered On</th>
+                            <th>Status</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myRegistrationsBody">
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">
+                                <div class="spinner-border spinner-border-sm text-primary me-2"></div> Loading registered courses...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancellation Confirmation Modal -->
+    <div class="modal fade" id="cancelModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>Drop / Cancel Course</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to cancel your registration for this course?</p>
+                    <div class="p-3 bg-light rounded border">
+                        <strong id="dropCourseName" class="text-danger">--</strong>
+                        <div class="small text-muted mt-1">Cancelling will release your reserved seat back to the general college pool.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Enrolled</button>
+                    <button type="button" class="btn btn-danger fw-bold" id="confirmDropBtn">Confirm Drop Course</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        let cancelModalInstance = null;
+        let pendingDropId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const student = requireStudentAuth();
+            if (!student) return;
+
+            cancelModalInstance = new bootstrap.Modal(document.getElementById('cancelModal'));
+            document.getElementById('confirmDropBtn').addEventListener('click', executeCancellation);
+            loadMyRegistrations(student.userId);
+        });
+
+        async function loadMyRegistrations(studentId) {
+            const tbody = document.getElementById('myRegistrationsBody');
+            try {
+                const regs = await apiCall(`/registrations/student/${studentId}`);
+
+                if (!regs || regs.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="text-center py-5 text-muted">
+                                <i class="bi bi-journal-x fs-1 d-block mb-2"></i>
+                                <h5>No active course registrations found</h5>
+                                <p class="small">Explore our catalog to find available electives and complete registration.</p>
+                                <a href="courses.html" class="btn btn-primary-custom btn-sm fw-bold">Browse Catalog</a>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = regs.map(r => `
+                    <tr>
+                        <td><code>#${r.registrationId}</code></td>
+                        <td><span class="badge bg-light text-dark border">${r.courseCode}</span></td>
+                        <td><a href="course-details.html?id=${r.courseId}" class="fw-bold text-decoration-none text-dark">${r.courseName}</a></td>
+                        <td><span class="badge bg-secondary">${r.courseDepartment}</span></td>
+                        <td>${r.facultyName}</td>
+                        <td><span class="badge bg-info text-dark">${r.credits} Credits</span></td>
+                        <td class="small text-muted">${formatDate(r.registrationDate)}</td>
+                        <td><span class="badge bg-success">${r.status}</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-outline-danger btn-sm fw-bold" onclick="promptCancellation(${r.registrationId}, '${r.courseName.replace(/'/g, "\\'")}')">
+                                <i class="bi bi-trash3 me-1"></i> Drop Course
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">${err.message}</td></tr>`;
+            }
+        }
+
+        function promptCancellation(registrationId, courseName) {
+            pendingDropId = registrationId;
+            document.getElementById('dropCourseName').innerText = courseName;
+            cancelModalInstance.show();
+        }
+
+        async function executeCancellation() {
+            if (!pendingDropId) return;
+            const btn = document.getElementById('confirmDropBtn');
+            btn.disabled = true;
+            btn.innerText = 'Dropping...';
+
+            try {
+                const student = Auth.getStudent();
+                const res = await apiCall(`/registrations/${pendingDropId}/drop/${student.userId}`, 'DELETE');
+                cancelModalInstance.hide();
+                showAlert('Registration cancelled successfully. Seat restored.', 'success');
+                loadMyRegistrations(student.userId);
+            } catch (err) {
+                showAlert(err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Confirm Drop Course';
+            }
+        }
+    </script>
+</body>
+</html>

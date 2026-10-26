@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login - Online Course Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-light">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <i class="bi bi-mortarboard-fill fs-3 me-2 text-warning"></i>
+                <span>ACADEMIC COURSE REGISTRATION</span>
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto align-items-center" id="navUserSection"></ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="form-card">
+            <div class="text-center mb-4">
+                <div class="bg-primary text-white d-inline-flex p-3 rounded-circle mb-3 shadow-sm">
+                    <i class="bi bi-person-bounding-box fs-2"></i>
+                </div>
+                <h3 class="fw-bold">Student Sign In</h3>
+                <p class="text-muted small">Access your registered courses, search electives, and manage enrollment.</p>
+            </div>
+
+            <form id="studentLoginForm">
+                <div class="mb-3">
+                    <label for="email" class="form-label">College Email Address <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" class="form-control" id="email" placeholder="e.g. akhil@gmail.com" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" class="form-control" id="password" placeholder="Enter password" required>
+                    </div>
+                </div>
+
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-primary-custom btn-lg shadow-sm" id="loginBtn">
+                        <span id="btnSpinner" class="spinner-border spinner-border-sm me-2 d-none" role="status"></span>
+                        Sign In
+                    </button>
+                </div>
+
+                <!-- Sample Credentials Quick Fill -->
+                <div class="alert alert-light border small text-muted mb-3">
+                    <div class="fw-bold text-dark mb-1"><i class="bi bi-info-circle me-1"></i> Quick Test Account:</div>
+                    <code>akhil@gmail.com</code> / <code>12345</code>
+                    <button type="button" class="btn btn-sm btn-link p-0 ms-2 text-decoration-none" onclick="fillTestAccount()">Auto-fill</button>
+                </div>
+
+                <div class="text-center">
+                    <p class="mb-1 text-muted">Don't have a student account?</p>
+                    <a href="student-register.html" class="fw-bold text-primary text-decoration-none">Create a Student Account</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        function fillTestAccount() {
+            document.getElementById('email').value = 'akhil@gmail.com';
+            document.getElementById('password').value = '12345';
+        }
+
+        document.getElementById('studentLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const spinner = document.getElementById('btnSpinner');
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+
+            const payload = {
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const response = await apiCall('/students/login', 'POST', payload);
+                if (response.success) {
+                    Auth.setStudent(response);
+                    showAlert('Login successful! Redirecting to student dashboard...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'student-dashboard.html';
+                    }, 800);
+                } else {
+                    showAlert(response.message || 'Login failed.', 'danger');
+                }
+            } catch (err) {
+                showAlert(err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Course - Academic Admin Console</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-light">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="admin-dashboard.html">
+                <i class="bi bi-shield-shaded fs-3 me-2 text-warning"></i>
+                <span>ACADEMIC ADMIN CONSOLE</span>
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="admin-dashboard.html">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="manage-courses.html">Manage Courses</a></li>
+                    <li class="nav-item"><a class="nav-link" href="add-course.html">Add Course</a></li>
+                    <li class="nav-item"><a class="nav-link" href="manage-students.html">Students</a></li>
+                    <li class="nav-item"><a class="nav-link" href="registrations.html">Registrations</a></li>
+                </ul>
+                <ul class="navbar-nav ms-auto align-items-center" id="navUserSection"></ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container py-5">
+        <div class="form-card" style="max-width: 760px;">
+            <div class="d-flex align-items-center mb-4">
+                <div class="bg-warning text-dark p-3 rounded-3 me-3 fs-3">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-0">Modify Course Offering</h3>
+                    <p class="text-muted small mb-0">Update course details, adjust maximum capacity or change active status.</p>
+                </div>
+            </div>
+
+            <form id="editCourseForm" novalidate>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Course Code <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="eCourseCode" required>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label">Course Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="eCourseName" required>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Course Description</label>
+                        <textarea class="form-control" id="eDescription" rows="3"></textarea>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Department <span class="text-danger">*</span></label>
+                        <select class="form-select" id="eDepartment" required>
+                            <option value="CSE">CSE</option>
+                            <option value="IT">IT</option>
+                            <option value="AIML">AIML</option>
+                            <option value="ECE">ECE</option>
+                            <option value="MECH">MECH</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Credits <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="eCredits" min="1" max="10" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Duration <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="eDuration" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Faculty In-Charge <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="eFacultyName" required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Max Seats <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="eMaxSeats" min="1" required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Available Seats <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="eAvailableSeats" min="0" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Status <span class="text-danger">*</span></label>
+                        <select class="form-select" id="eStatus" required>
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="INACTIVE">INACTIVE</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a href="manage-courses.html" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary-custom fw-bold px-4" id="updateBtn">
+                        <span id="uSpinner" class="spinner-border spinner-border-sm me-1 d-none" role="status"></span>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        let courseId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const admin = requireAdminAuth();
+            if (!admin) return;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            courseId = urlParams.get('id');
+
+            if (!courseId) {
+                showAlert('No course ID provided to edit.', 'danger');
+                setTimeout(() => window.location.href = 'manage-courses.html', 1000);
+                return;
+            }
+
+            try {
+                const c = await apiCall(`/courses/${courseId}`);
+                document.getElementById('eCourseCode').value = c.courseCode;
+                document.getElementById('eCourseName').value = c.courseName;
+                document.getElementById('eDescription').value = c.description || '';
+                document.getElementById('eDepartment').value = c.department;
+                document.getElementById('eCredits').value = c.credits;
+                document.getElementById('eDuration').value = c.duration;
+                document.getElementById('eFacultyName').value = c.facultyName;
+                document.getElementById('eMaxSeats').value = c.maxSeats;
+                document.getElementById('eAvailableSeats').value = c.availableSeats;
+                document.getElementById('eStatus').value = c.status;
+            } catch (err) {
+                showAlert('Failed to load course details: ' + err.message, 'danger');
+            }
+        });
+
+        document.getElementById('editCourseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const btn = document.getElementById('updateBtn');
+            const spinner = document.getElementById('uSpinner');
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+
+            const payload = {
+                courseCode: document.getElementById('eCourseCode').value.trim(),
+                courseName: document.getElementById('eCourseName').value.trim(),
+                description: document.getElementById('eDescription').value.trim(),
+                department: document.getElementById('eDepartment').value,
+                credits: parseInt(document.getElementById('eCredits').value, 10),
+                duration: document.getElementById('eDuration').value.trim(),
+                facultyName: document.getElementById('eFacultyName').value.trim(),
+                maxSeats: parseInt(document.getElementById('eMaxSeats').value, 10),
+                availableSeats: parseInt(document.getElementById('eAvailableSeats').value, 10),
+                status: document.getElementById('eStatus').value
+            };
+
+            try {
+                await apiCall(`/courses/${courseId}`, 'PUT', payload);
+                showAlert('Course updated successfully!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'manage-courses.html';
+                }, 800);
+            } catch (err) {
+                showAlert(err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+            }
+        });
+    </script>
+</body>
+</html>

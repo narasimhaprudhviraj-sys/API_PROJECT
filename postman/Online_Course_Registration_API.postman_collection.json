@@ -1,0 +1,527 @@
+{
+  "info": {
+    "_postman_id": "c71a3994-b258-48fe-89dc-0fc253b70e5b",
+    "name": "Online Course Registration Management System - Complete API Collection",
+    "description": "Production-ready Postman collection covering all 13 REST API modules: Authentication (JWT), Branches, Minor Streams, Sections, Faculty, Semesters, Registration Windows, Courses, Students, Registrations, Academic Rule Validations, Dashboard Stats, and Audit Queries.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "studentToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "facultyToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01. Authentication & JWT APIs",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('adminToken', jsonData.token);",
+                  "}",
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Role is ADMIN', function () { pm.expect(jsonData.role).to.eql('ADMIN'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@college.edu\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/admin/login", "host": ["{{baseUrl}}"], "path": ["admin", "login"] }
+          }
+        },
+        {
+          "name": "Student Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('studentToken', jsonData.token);",
+                  "}",
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Role is STUDENT', function () { pm.expect(jsonData.role).to.eql('STUDENT'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"akhil@gmail.com\",\n  \"password\": \"12345\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/students/login", "host": ["{{baseUrl}}"], "path": ["students", "login"] }
+          }
+        },
+        {
+          "name": "Faculty Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('facultyToken', jsonData.token);",
+                  "}",
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Role is FACULTY', function () { pm.expect(jsonData.role).to.eql('FACULTY'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ravi.kumar@college.edu\",\n  \"password\": \"faculty123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/admin/faculty/login", "host": ["{{baseUrl}}"], "path": ["admin", "faculty", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Branch Management APIs",
+      "item": [
+        {
+          "name": "Get All Branches",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/branches", "host": ["{{baseUrl}}"], "path": ["branches"] }
+          }
+        },
+        {
+          "name": "Get Active Branches",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/branches/active", "host": ["{{baseUrl}}"], "path": ["branches", "active"] }
+          }
+        },
+        {
+          "name": "Create Branch",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"branchCode\": \"MECH\",\n  \"branchName\": \"Mechanical Engineering\",\n  \"active\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/branches", "host": ["{{baseUrl}}"], "path": ["branches"] }
+          }
+        },
+        {
+          "name": "Toggle Branch Status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/branches/1/toggle", "host": ["{{baseUrl}}"], "path": ["branches", "1", "toggle"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Minor Stream APIs",
+      "item": [
+        {
+          "name": "Get All Minor Streams",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/minor-streams", "host": ["{{baseUrl}}"], "path": ["minor-streams"] }
+          }
+        },
+        {
+          "name": "Get Minor Streams by Branch",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/minor-streams/branch/1", "host": ["{{baseUrl}}"], "path": ["minor-streams", "branch", "1"] }
+          }
+        },
+        {
+          "name": "Create Minor Stream",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"streamCode\": \"ROB\",\n  \"streamName\": \"Robotics Stream\",\n  \"branchId\": 1,\n  \"active\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/minor-streams", "host": ["{{baseUrl}}"], "path": ["minor-streams"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. Section Management APIs",
+      "item": [
+        {
+          "name": "Get All Sections",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/sections", "host": ["{{baseUrl}}"], "path": ["sections"] }
+          }
+        },
+        {
+          "name": "Assign Faculty to Section",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/sections/1/assign-faculty/2", "host": ["{{baseUrl}}"], "path": ["sections", "1", "assign-faculty", "2"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05. Faculty Management APIs",
+      "item": [
+        {
+          "name": "Get All Faculty",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/faculty", "host": ["{{baseUrl}}"], "path": ["faculty"] }
+          }
+        },
+        {
+          "name": "Get Assigned Sections for Faculty",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{facultyToken}}" }],
+            "url": { "raw": "{{baseUrl}}/faculty/1/sections", "host": ["{{baseUrl}}"], "path": ["faculty", "1", "sections"] }
+          }
+        },
+        {
+          "name": "Get Assigned Courses for Faculty",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{facultyToken}}" }],
+            "url": { "raw": "{{baseUrl}}/faculty/1/courses", "host": ["{{baseUrl}}"], "path": ["faculty", "1", "courses"] }
+          }
+        },
+        {
+          "name": "Get Assigned Students for Faculty (Restricted)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{facultyToken}}" }],
+            "url": { "raw": "{{baseUrl}}/faculty/1/students", "host": ["{{baseUrl}}"], "path": ["faculty", "1", "students"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06. Semester Management APIs",
+      "item": [
+        {
+          "name": "Get All Semesters",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/semesters", "host": ["{{baseUrl}}"], "path": ["semesters"] }
+          }
+        },
+        {
+          "name": "Get Active Semesters",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/semesters/active", "host": ["{{baseUrl}}"], "path": ["semesters", "active"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "07. Registration Window APIs",
+      "item": [
+        {
+          "name": "Get All Windows",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/registration-windows", "host": ["{{baseUrl}}"], "path": ["registration-windows"] }
+          }
+        },
+        {
+          "name": "Check if Window is Open for Semester 3",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/registration-windows/semester/1/open", "host": ["{{baseUrl}}"], "path": ["registration-windows", "semester", "1", "open"] }
+          }
+        },
+        {
+          "name": "Create Registration Window",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Semester 4 Special Window\",\n  \"semesterId\": 2,\n  \"startDateTime\": \"2026-10-01T00:00:00\",\n  \"endDateTime\": \"2026-10-25T23:59:59\",\n  \"status\": \"OPEN\",\n  \"active\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/registration-windows", "host": ["{{baseUrl}}"], "path": ["registration-windows"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "08. Course Management APIs",
+      "item": [
+        {
+          "name": "Get All Courses",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/courses", "host": ["{{baseUrl}}"], "path": ["courses"] }
+          }
+        },
+        {
+          "name": "Get Available Courses (>0 seats)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/courses/available", "host": ["{{baseUrl}}"], "path": ["courses", "available"] }
+          }
+        },
+        {
+          "name": "Create Course with Academic Hierarchy",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseCode\": \"MAD302\",\n  \"courseName\": \"Cross-Platform Mobile Dev\",\n  \"description\": \"Flutter and Dart multiplatform development.\",\n  \"credits\": 3,\n  \"maxSeats\": 30,\n  \"availableSeats\": 30,\n  \"duration\": \"12 Weeks\",\n  \"status\": \"ACTIVE\",\n  \"branchId\": 1,\n  \"minorStreamId\": 1,\n  \"semesterId\": 1,\n  \"facultyId\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/courses", "host": ["{{baseUrl}}"], "path": ["courses"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "09. Student Management APIs",
+      "item": [
+        {
+          "name": "Get Student Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/students/1", "host": ["{{baseUrl}}"], "path": ["students", "1"] }
+          }
+        },
+        {
+          "name": "Get Eligible Courses for Student",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/students/1/eligible-courses", "host": ["{{baseUrl}}"], "path": ["students", "1", "eligible-courses"] }
+          }
+        },
+        {
+          "name": "Update Student Self Profile (Minor Stream Fixed)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Akhil Sharma Updated\",\n  \"phone\": \"9876543299\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/students/1/self", "host": ["{{baseUrl}}"], "path": ["students", "1", "self"] }
+          }
+        },
+        {
+          "name": "Assign Academics (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"branchId\": 1,\n  \"minorStreamId\": 1,\n  \"sectionId\": 1,\n  \"semesterId\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/students/1/academics", "host": ["{{baseUrl}}"], "path": ["students", "1", "academics"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Course Registration & Drop APIs",
+      "item": [
+        {
+          "name": "Register for Eligible Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": 1,\n  \"courseId\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/registrations", "host": ["{{baseUrl}}"], "path": ["registrations"] }
+          }
+        },
+        {
+          "name": "Get Student Registrations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/registrations/student/1", "host": ["{{baseUrl}}"], "path": ["registrations", "student", "1"] }
+          }
+        },
+        {
+          "name": "Drop Course (Within Window, Preserves History)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/registrations/1/drop/1", "host": ["{{baseUrl}}"], "path": ["registrations", "1", "drop", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Academic Business Rule Validations",
+      "item": [
+        {
+          "name": "Reject Student Altering Minor Stream (403)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"minorStreamId\": 2\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/students/1/self", "host": ["{{baseUrl}}"], "path": ["students", "1", "self"] }
+          }
+        },
+        {
+          "name": "Reject Registering Course of Different Branch (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": 1,\n  \"courseId\": 7\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/registrations", "host": ["{{baseUrl}}"], "path": ["registrations"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Dashboard & Stats APIs",
+      "item": [
+        {
+          "name": "Get Admin Dashboard Metrics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Stats structure is valid', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('totalStudents');",
+                  "    pm.expect(json).to.have.property('totalCourses');",
+                  "    pm.expect(json).to.have.property('totalFaculty');",
+                  "    pm.expect(json).to.have.property('totalBranches');",
+                  "    pm.expect(json).to.have.property('totalMinorStreams');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/admin/stats", "host": ["{{baseUrl}}"], "path": ["admin", "stats"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "13. Audit & Logging APIs",
+      "item": [
+        {
+          "name": "Get Paginated Registrations Audit",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/admin/registrations/page?page=0&size=10&sort=registrationDate,desc", "host": ["{{baseUrl}}"], "path": ["admin", "registrations", "page"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "10" }, { "key": "sort", "value": "registrationDate,desc" }] }
+          }
+        },
+        {
+          "name": "Get Paginated Students Audit",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/admin/students/page?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["admin", "students", "page"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "10" }] }
+          }
+        }
+      ]
+    }
+  ]
+}

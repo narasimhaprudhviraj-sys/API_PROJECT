@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Details - Online Course Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-light">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <i class="bi bi-mortarboard-fill fs-3 me-2 text-warning"></i>
+                <span>ACADEMIC COURSE REGISTRATION</span>
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="student-dashboard.html">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="courses.html">Browse Courses</a></li>
+                    <li class="nav-item"><a class="nav-link" href="my-courses.html">My Registrations</a></li>
+                </ul>
+                <ul class="navbar-nav ms-auto align-items-center" id="navUserSection"></ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container py-5">
+        <div class="mb-3">
+            <a href="courses.html" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back to Courses</a>
+        </div>
+
+        <div class="card card-custom p-4 shadow-sm" id="courseCard">
+            <div id="loadingPlaceholder" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted mt-2">Loading course information...</p>
+            </div>
+
+            <div id="courseContent" class="d-none">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                    <div>
+                        <span class="badge bg-primary text-uppercase me-2" id="cDept">--</span>
+                        <span class="badge bg-secondary me-2" id="cCredits">-- Credits</span>
+                        <span class="badge bg-info text-dark" id="cStatus">ACTIVE</span>
+                        <h2 class="fw-bold text-primary mt-2 mb-1" id="cName">Course Name</h2>
+                        <h5 class="text-muted"><i class="bi bi-tag"></i> Course Code: <span id="cCode" class="fw-bold">--</span></h5>
+                    </div>
+                    <div id="seatStatusContainer" class="text-end">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-8">
+                        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-card-text text-primary me-2"></i>Course Syllabus & Description</h5>
+                        <div class="p-3 bg-light rounded border text-muted" id="cDesc" style="line-height: 1.7;">
+                            Detailed course overview will appear here.
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card bg-light border-0 p-3 rounded">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Academic Specifications</h6>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2 pb-2 border-bottom d-flex justify-content-between">
+                                    <span class="text-muted">Assigned Faculty:</span>
+                                    <strong id="cFaculty" class="text-dark">--</strong>
+                                </li>
+                                <li class="mb-2 pb-2 border-bottom d-flex justify-content-between">
+                                    <span class="text-muted">Duration:</span>
+                                    <strong id="cDuration" class="text-dark">--</strong>
+                                </li>
+                                <li class="mb-2 pb-2 border-bottom d-flex justify-content-between">
+                                    <span class="text-muted">Max Seats:</span>
+                                    <strong id="cMaxSeats" class="text-dark">--</strong>
+                                </li>
+                                <li class="mb-2 pb-2 border-bottom d-flex justify-content-between">
+                                    <span class="text-muted">Available Seats:</span>
+                                    <strong id="cAvailableSeats" class="text-dark">--</strong>
+                                </li>
+                                <li class="d-flex justify-content-between">
+                                    <span class="text-muted">Status:</span>
+                                    <strong id="cStatusText" class="text-success">Active</strong>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                    <a href="courses.html" class="btn btn-outline-secondary">Back to Catalog</a>
+                    <button id="registerBtn" class="btn btn-primary-custom btn-lg fw-bold px-4" onclick="registerCurrentCourse()">
+                        <i class="bi bi-pencil-square me-1"></i> Register Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        let currentCourse = null;
+        let isAlreadyRegistered = false;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('id');
+
+            if (!courseId) {
+                showAlert('No course ID specified in URL.', 'danger');
+                setTimeout(() => window.location.href = 'courses.html', 1500);
+                return;
+            }
+
+            try {
+                currentCourse = await apiCall(`/courses/${courseId}`);
+                const student = Auth.getStudent();
+
+                if (student && student.userId) {
+                    try {
+                        const myRegs = await apiCall(`/registrations/student/${student.userId}`);
+                        isAlreadyRegistered = myRegs.some(r => r.courseId == courseId);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+
+                renderDetails(currentCourse);
+            } catch (err) {
+                document.getElementById('loadingPlaceholder').innerHTML = `
+                    <div class="text-danger py-4">
+                        <h5>Failed to load course details</h5>
+                        <p class="small text-muted">${err.message}</p>
+                    </div>
+                `;
+            }
+        });
+
+        function renderDetails(c) {
+            document.getElementById('loadingPlaceholder').classList.add('d-none');
+            document.getElementById('courseContent').classList.remove('d-none');
+
+            document.getElementById('cName').innerText = c.courseName;
+            document.getElementById('cCode').innerText = c.courseCode;
+            document.getElementById('cDept').innerText = c.department;
+            document.getElementById('cCredits').innerText = `${c.credits} Credits`;
+            document.getElementById('cStatus').innerText = c.status;
+            document.getElementById('cDesc').innerText = c.description || 'No detailed syllabus provided.';
+            document.getElementById('cFaculty').innerText = c.facultyName;
+            document.getElementById('cDuration').innerText = c.duration;
+            document.getElementById('cMaxSeats').innerText = c.maxSeats;
+            document.getElementById('cAvailableSeats').innerText = c.availableSeats;
+            document.getElementById('cStatusText').innerText = c.status;
+
+            document.getElementById('seatStatusContainer').innerHTML = getSeatBadge(c.availableSeats, c.maxSeats);
+
+            const regBtn = document.getElementById('registerBtn');
+            if (isAlreadyRegistered) {
+                regBtn.disabled = true;
+                regBtn.className = 'btn btn-secondary btn-lg fw-bold';
+                regBtn.innerHTML = '<i class="bi bi-check2"></i> Already Registered';
+            } else if (c.availableSeats <= 0) {
+                regBtn.disabled = true;
+                regBtn.className = 'btn btn-danger btn-lg fw-bold';
+                regBtn.innerHTML = '<i class="bi bi-x-circle"></i> Class Full';
+            } else if (c.status !== 'ACTIVE') {
+                regBtn.disabled = true;
+                regBtn.className = 'btn btn-light border btn-lg';
+                regBtn.innerHTML = 'Registration Closed';
+            }
+        }
+
+        async function registerCurrentCourse() {
+            const student = Auth.getStudent();
+            if (!student || !student.userId) {
+                showAlert('Please login as a student to register.', 'warning');
+                setTimeout(() => window.location.href = 'student-login.html', 1000);
+                return;
+            }
+
+            const btn = document.getElementById('registerBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing...';
+
+            try {
+                const payload = {
+                    studentId: student.userId,
+                    courseId: currentCourse.courseId
+                };
+                const res = await apiCall('/registrations', 'POST', payload);
+                showAlert(`Successfully enrolled in ${currentCourse.courseName}!`, 'success');
+                isAlreadyRegistered = true;
+                currentCourse.availableSeats -= 1;
+                renderDetails(currentCourse);
+            } catch (err) {
+                showAlert(err.message, 'danger');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-pencil-square me-1"></i> Register Now';
+            }
+        }
+    </script>
+</body>
+</html>

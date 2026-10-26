@@ -1,0 +1,14 @@
+-------------------------------------------------------------------------------
+Test set: com.example.onlinecourse.service.StudentServiceTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 1.465 s <<< FAILURE! -- in com.example.onlinecourse.service.StudentServiceTest
+com.example.onlinecourse.service.StudentServiceTest.testLoginStudent_Success -- Time elapsed: 0.262 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "String.getBytes(java.nio.charset.Charset)" because "this.jwtSecret" is null
+	at com.example.onlinecourse.config.JwtService.getSigningKey(JwtService.java:30)
+	at com.example.onlinecourse.config.JwtService.generateToken(JwtService.java:48)
+	at com.example.onlinecourse.service.impl.StudentServiceImpl.loginStudent(StudentServiceImpl.java:156)
+	at com.example.onlinecourse.service.StudentServiceTest.testLoginStudent_Success(StudentServiceTest.java:129)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+
